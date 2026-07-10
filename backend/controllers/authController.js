@@ -3,30 +3,34 @@ import User from "../models/User.js";
 import OTP from "../models/OTP.js"
 import sendEmail from "../utils/sendEmail.js";
 import jwt from "jsonwebtoken";
-import { validateSignup } from "../utils/validateSignup.js";
 
 export const signupController = async (req, res) => {
     try {
-        const data = req.body;
-        const { firstName, lastName, userName, email, password, contactNumber } = data;
+        const { firstName, lastName, userName, email, password, contactNumber } = req.body;
 
-        const errors = validateSignup({firstName,userName,email,password,contactNumber})
+        const existingUser = await User.findOne({
+            $or: [{ userName }, { email }]
+        });
 
-        if(errors.length>0){
-            return res.status(400).json({message:"Validation failed",errors})
-        }
-        const existingUser = await User.findOne({ userName });
         if (existingUser) {
-            return res.status(400).json({
-                message: "Username already exists"
-            })
+            if (existingUser.verified) {
+                const conflictField = existingUser.userName === userName ? "Username" : "Email";
+                return res.status(400).json({ message: `${conflictField} already exists` });
+            } else {
+                const accountAge = Date.now() - existingUser.createdAt.getTime();
+                const staleThreshold = 24 * 60 * 60 * 1000; // 24 hours
+
+                if (accountAge < staleThreshold) {
+                    return res.status(400).json({
+                        message: "This username or email is pending verification. Please verify it or try again later."
+                    });
+                }
+
+                await OTP.deleteMany({ user: existingUser._id });
+                await User.findByIdAndDelete(existingUser._id);
+            }
         }
-        const existingEmail = await User.findOne({ email });
-        if (existingEmail) {
-            return res.status(400).json({
-                message: "Email already exists"
-            })
-        }
+
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -66,14 +70,7 @@ export const verifyotpController = async (req, res) => {
     try {
 
         const identifier = req.body.identifier?.trim();
-        const otp=req.body.otp;
-
-        if (!identifier) {
-            return res.status(400).json({ message: "Email or username is required" });
-        }
-        if (!otp) {
-            return res.status(400).json({ message: "OTP is required" });
-        }
+        const otp = req.body.otp;
 
         const user = await User.findOne({
             $or: [{ email: identifier }, { userName: identifier }]
@@ -85,6 +82,12 @@ export const verifyotpController = async (req, res) => {
         const existingOTP = await OTP.findOne({ user: user._id });
         if (!existingOTP) {
             return res.status(400).json({ message: "OTP expired or not found, please resend" });
+        }
+
+        const otpAgeInSeconds = (Date.now() - existingOTP.createdAt.getTime()) / 1000;
+        if (otpAgeInSeconds > 300) {
+            await OTP.findByIdAndDelete(existingOTP._id);
+            return res.status(400).json({ message: "OTP expired, please resend" });
         }
 
         if (existingOTP.otp != otp) {
@@ -103,14 +106,6 @@ export const loginController = async (req, res) => {
     try {
         const identifier = req.body.identifier?.trim();
         const password = req.body.password;
-
-        if (!identifier) {
-            return res.status(400).json({ message: "Email or username is required" });
-        }
-
-        if (!password) {
-            return res.status(400).json({ message: "Password is required" });
-        }
 
         const user = await User.findOne({
             $or: [{ email: identifier }, { userName: identifier }]
@@ -152,13 +147,8 @@ export const loginController = async (req, res) => {
 
 export const resendOTPController = async (req, res) => {
     try {
+        const { identifier } = req.body;
 
-        const identifier  = req.body.identifier?.trim();
-
-        if (!identifier) {
-            return res.status(400).json({ message: "Email or username is required" });
-        }
-        
         const user = await User.findOne({
             $or: [{ email: identifier }, { userName: identifier }]
         })

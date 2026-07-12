@@ -13,13 +13,14 @@ export const createTaskController = async (req, res) => {
 
         if (!categoryId) {
             let defaultCategory = await Category.findOne({
-                userId: user, category: "Uncategorized"
+                userId: user, isDefault: true
             });
             if (!defaultCategory) {
                 defaultCategory = await Category.create({
                     userId: user,
                     color: "grey",
-                    category: "Uncategorized"
+                    category: "Uncategorized",
+                    isDefault: true
                 })
             }
             categoryId = defaultCategory._id;

@@ -5,7 +5,7 @@ import connectDB from "./config/db.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js"
-
+import categoryRoutes from "./routes/categoryRoutes.js";
 dotenv.config();
 connectDB();
 
@@ -26,7 +26,8 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api/auth", authRoutes);
-app.use("/api/tasks", taskRoutes)
+app.use("/api/tasks", taskRoutes);
+app.use("/api/categories",categoryRoutes);
 
 app.use((req, res) => {
     res.status(404).json({ message: "Route not found" });

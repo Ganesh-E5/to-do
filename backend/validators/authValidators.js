@@ -2,11 +2,13 @@ import { body } from "express-validator";
 
 export const signupValidator = [
     body("firstName")
+        .trim()
         .notEmpty().withMessage("First name is required")
         .bail()
         .matches(/^[A-Za-z]+$/).withMessage("First name should contain only letters"),
 
     body("userName")
+        .trim()
         .notEmpty().withMessage("User name is required")
         .bail()
         .matches(/^[a-zA-Z0-9_]+$/).withMessage("Username can only contain letters, numbers, and underscores"),

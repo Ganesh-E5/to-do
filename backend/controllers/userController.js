@@ -125,7 +125,14 @@ export const verifyPasswordChangeOTPController = async (req, res) => {
         }
 
         if (existingOTP.otp != otp) {
-            await session.abortTransaction();
+            existingOTP.attempts += 1;
+            if (existingOTP.attempts >= 5) {
+                await OTP.findByIdAndDelete(existingOTP._id).session(session);
+                await session.commitTransaction();
+                return res.status(400).json({ message: "Too many incorrect attempts. Please request a new OTP." });
+            }
+            await existingOTP.save({ session });
+            await session.commitTransaction();
             return res.status(400).json({ message: "Incorrect OTP" });
         }
 

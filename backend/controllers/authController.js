@@ -161,6 +161,12 @@ export const verifyotpController = async (req, res) => {
         }
 
         if (existingOTP.otp != otp) {
+            existingOTP.attempts += 1;
+            if (existingOTP.attempts >= 5) {
+                await OTP.findByIdAndDelete(existingOTP._id);
+                return res.status(400).json({ message: "Too many incorrect attempts. Please request a new OTP." });
+            }
+            await existingOTP.save();
             return res.status(400).json({ message: "Incorrect OTP" });
         }
 

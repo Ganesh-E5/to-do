@@ -17,6 +17,8 @@ import CategoryFormPage from "../pages/categories/CategoryFormPage"
 import ProfilePage from "../pages/settings/ProfilePage"
 import ChangePasswordPage from "../pages/settings/ChangePasswordPage"
 
+import NotFoundPage from "../pages/NotFoundPage";
+
 const router = createBrowserRouter([
     { path: "/signup", element: <SignupPage /> },
     { path: "/verify-otp", element: <VerifyOtpPage /> },
@@ -42,7 +44,9 @@ const router = createBrowserRouter([
             { path: "/settings/profile", element: <ProfilePage /> },
             { path: "/settings/change-password", element: <ChangePasswordPage /> },
         ]
-    }
+    },
+
+    { path: "*", element: <NotFoundPage /> }
 ])
 
 export default router;

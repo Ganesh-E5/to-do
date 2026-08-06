@@ -5,6 +5,7 @@ import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { getProfile, updateProfile } from "../../services/userService";
+import { Helmet } from "react-helmet-async";
 
 function ProfilePage() {
     const [email, setEmail] = useState("");
@@ -58,6 +59,10 @@ function ProfilePage() {
     if (error) return <p className="text-center text-red-500 py-10">{error}</p>;
 
     return (
+        <>
+        <Helmet>
+            <title>Profile | TaskFlow</title>
+        </Helmet>
         <div className="max-w-xl mx-auto">
             <h1 className="text-3xl font-bold mb-8">Profile</h1>
 
@@ -128,6 +133,7 @@ function ProfilePage() {
                 </Link>
             </p>
         </div>
+        </>
     );
 }
 

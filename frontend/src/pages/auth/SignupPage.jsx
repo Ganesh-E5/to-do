@@ -5,6 +5,8 @@ import Input from "../../components/common/Input"
 import Button from "../../components/common/Button";
 import { Link, useNavigate } from "react-router-dom";
 import { signup } from "../../services/authService";
+import { Helmet } from "react-helmet-async";
+
 function SignupPage() {
     const {
         register,
@@ -78,6 +80,9 @@ function SignupPage() {
     };
     return (
         <>
+            <Helmet>
+                <title>Sign Up | TaskFlow</title>
+            </Helmet>
             <div className="bg-gray-900 min-h-screen  flex items-center justify-center py-4">
                 <div className="bg-white w-full max-w-md mx-4 p-8 rounded-xl shadow-xl">
                     <h1 className="text-center text-5xl font-bold">

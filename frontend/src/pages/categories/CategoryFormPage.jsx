@@ -4,6 +4,7 @@ import Button from "../../components/common/Button";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {createCategory, getCategoryById, updateCategory} from "../../services/categoryService"
+import { Helmet } from "react-helmet-async";
 
 function CategoryFormPage() {
     const { id } = useParams();
@@ -56,6 +57,11 @@ function CategoryFormPage() {
 
     return (
         <>
+            <Helmet>
+                <title>
+                    {isEditMode ? "Edit Category | TaskFlow" : "Create Category | TaskFlow"}
+                </title>
+            </Helmet>
             <div>
                 <h1  className="text-3xl font-bold mb-8">
                     { isEditMode ? "Edit Category": "New Category"}

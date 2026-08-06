@@ -6,6 +6,7 @@ import Button from "../../components/common/Button";
 import { createTask, updateTask, getTaskById } from "../../services/taskService";
 import { getCategories } from "../../services/categoryService";
 import { statusOptions, priorityOptions } from "../../constants/taskConstants";
+import { Helmet } from "react-helmet-async";
 
 function TaskFormPage() {
     const { id } = useParams();
@@ -79,101 +80,108 @@ function TaskFormPage() {
     }
 
     return (
-        <div className="max-w-xl mx-auto">
-            <h1 className="text-3xl font-bold mb-8">
-                {isEditMode ? "Edit Task" : "Create Task"}
-            </h1>
+        <>
+            <Helmet>
+                <title>
+                    {isEditMode ? "Edit Task | TaskFlow" : "Create Task | TaskFlow"}
+                </title>
+            </Helmet>
+            <div className="max-w-xl mx-auto">
+                <h1 className="text-3xl font-bold mb-8">
+                    {isEditMode ? "Edit Task" : "Create Task"}
+                </h1>
 
-            <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="bg-white p-8 rounded-xl shadow-xl space-y-4"
-            >
-                <Input
-                    type="text"
-                    id="title"
-                    label="Title"
-                    error={errors.title?.message}
-                    {...register("title", { required: "Title is required" })}
-                />
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="bg-white p-8 rounded-xl shadow-xl space-y-4"
+                >
+                    <Input
+                        type="text"
+                        id="title"
+                        label="Title"
+                        error={errors.title?.message}
+                        {...register("title", { required: "Title is required" })}
+                    />
 
-                <Input
-                    textarea={true}
-                    id="description"
-                    label="Description"
-                    rows={4}
-                    {...register("description")}
-                />
+                    <Input
+                        textarea={true}
+                        id="description"
+                        label="Description"
+                        rows={4}
+                        {...register("description")}
+                    />
 
-                <Input
-                    type="date"
-                    id="dueDate"
-                    label="Due date"
-                    min={new Date().toISOString().split("T")[0]}
-                    error={errors.dueDate?.message}
-                    {...register("dueDate", {
-                        required: "Due date is required",
-                        validate: (value) =>
-                            value >= new Date().toISOString().split("T")[0] ||
-                            "Due date cannot be before today",
-                    })}
-                />
+                    <Input
+                        type="date"
+                        id="dueDate"
+                        label="Due date"
+                        min={new Date().toISOString().split("T")[0]}
+                        error={errors.dueDate?.message}
+                        {...register("dueDate", {
+                            required: "Due date is required",
+                            validate: (value) =>
+                                value >= new Date().toISOString().split("T")[0] ||
+                                "Due date cannot be before today",
+                        })}
+                    />
 
-                <Input
-                    select
-                    id="priority"
-                    label="Priority"
-                    options={priorityOptions}
-                    {...register("priority")}
-                />
-
-                {isEditMode && (
                     <Input
                         select
-                        id="status"
-                        label="Status"
-                        options={statusOptions}
-                        {...register("status")}
+                        id="priority"
+                        label="Priority"
+                        options={priorityOptions}
+                        {...register("priority")}
                     />
-                )}
 
-                <Input
-                    select
-                    id="category"
-                    label="Category"
-                    options={[
-                        { value:"", label:"No category"},
-                        ...categories.map((cat) => ({
-                            value: cat._id,
-                            label: cat.category,
-                        })),
-                    ]}
-                    {...register("category")}
-                />
+                    {isEditMode && (
+                        <Input
+                            select
+                            id="status"
+                            label="Status"
+                            options={statusOptions}
+                            {...register("status")}
+                        />
+                    )}
 
-                {serverError && (
-                    <p className="text-red-500 text-sm text-center">{serverError}</p>
-                )}
-
-                <div className="flex items-center gap-4 pt-2">
-                    <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        children={
-                            isSubmitting
-                                ? isEditMode ? "Saving..." : "Creating..."
-                                : isEditMode ? "Save Changes" : "Create Task"
-                        }
+                    <Input
+                        select
+                        id="category"
+                        label="Category"
+                        options={[
+                            { value: "", label: "No category" },
+                            ...categories.map((cat) => ({
+                                value: cat._id,
+                                label: cat.category,
+                            })),
+                        ]}
+                        {...register("category")}
                     />
-                    <button
-                        type="button"
-                        onClick={() => navigate("/tasks")}
-                        className="text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap cursor-pointer"
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
+
+                    {serverError && (
+                        <p className="text-red-500 text-sm text-center">{serverError}</p>
+                    )}
+
+                    <div className="flex items-center gap-4 pt-2">
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                            children={
+                                isSubmitting
+                                    ? isEditMode ? "Saving..." : "Creating..."
+                                    : isEditMode ? "Save Changes" : "Create Task"
+                            }
+                        />
+                        <button
+                            type="button"
+                            onClick={() => navigate("/tasks")}
+                            className="text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap cursor-pointer"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </>
     );
 }
 

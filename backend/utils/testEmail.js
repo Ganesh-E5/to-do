@@ -15,7 +15,6 @@ const transporter = nodemailer.createTransport({
 
 try {
   await transporter.verify();
-  console.log("SMTP verified");
 
   const info = await transporter.sendMail({
     from: process.env.EMAIL_USER,
@@ -24,7 +23,6 @@ try {
     text: "Hello from Nodemailer",
   });
 
-  console.log(info);
 } catch (err) {
   console.error(err);
 }

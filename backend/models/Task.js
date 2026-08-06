@@ -9,7 +9,7 @@ const taskSchema = new Schema({
     dueDate: { type: Date, required: true },
     status: { type: String, enum: ["not started", "in progress", "completed"], default: "not started" },
     priority: { type: String, enum: ["low", "medium", "high"], default: "low" },
-    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: false, default: null },
 
 }, { timestamps: true });
 

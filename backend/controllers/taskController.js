@@ -9,30 +9,13 @@ export const createTaskController = async (req, res) => {
 
         const { title, description, dueDate, priority, category } = req.body;
 
-        let categoryId = category;
-
-        if (!categoryId) {
-            let defaultCategory = await Category.findOne({
-                userId: user, isDefault: true
-            });
-            if (!defaultCategory) {
-                defaultCategory = await Category.create({
-                    userId: user,
-                    color: "grey",
-                    category: "Uncategorized",
-                    isDefault: true
-                })
-            }
-            categoryId = defaultCategory._id;
-        }
-
         const newTask = await Task.create({
             userId: user,
             title,
             description,
             dueDate,
             priority,
-            category: categoryId
+            category: category || null
         })
 
         res.status(201).json({ message: "Task created successfully", task: newTask })

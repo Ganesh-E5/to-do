@@ -6,65 +6,135 @@ import jwt from "jsonwebtoken";
 
 export const signupController = async (req, res) => {
     try {
-        const { firstName, lastName, userName, email, password, contactNumber } = req.body;
+        const {
+            firstName,
+            lastName,
+            userName,
+            email,
+            password,
+            contactNumber,
+        } = req.body;
 
-        const existingUser = await User.findOne({
-            $or: [{ userName }, { email }]
-        });
+        const existingUsername = await User.findOne({ userName });
+        const existingEmail = await User.findOne({ email });
 
-        if (existingUser) {
-            if (existingUser.verified) {
-                const conflictField = existingUser.userName === userName ? "Username" : "Email";
-                return res.status(400).json({ message: `${conflictField} already exists` });
-            } else {
-                const accountAge = Date.now() - existingUser.createdAt.getTime();
-                const staleThreshold = 24 * 60 * 60 * 1000; // 24 hours
-
-                if (accountAge < staleThreshold) {
-                    return res.status(400).json({
-                        message: "This username or email is pending verification. Please verify it or try again later."
-                    });
-                }
-
-                await OTP.deleteMany({ user: existingUser._id });
-                await User.findByIdAndDelete(existingUser._id);
-            }
+        // Check verified username
+        if (existingUsername?.verified) {
+            return res.status(400).json({
+                code: "USERNAME_EXISTS",
+                field: "userName",
+                message: "Username already exists",
+            });
         }
 
+        // Check verified email
+        if (existingEmail?.verified) {
+            return res.status(400).json({
+                code: "EMAIL_EXISTS",
+                field: "email",
+                message: "Email already exists",
+            });
+        }
 
+        const staleThreshold = 24 * 60 * 60 * 1000;
+
+        // Handle unverified username
+        if (existingUsername && !existingUsername.verified) {
+            const accountAge =
+                Date.now() - existingUsername.createdAt.getTime();
+
+            if (accountAge < staleThreshold) {
+                const isSameEmail = existingUsername.email === email;
+
+                return res.status(400).json({
+                    code: isSameEmail ? "VERIFICATION_PENDING" : "USERNAME_EXISTS",
+                    field: isSameEmail ? undefined : "userName",
+                    message: isSameEmail
+                        ? "This username is pending for verification. Please verify it or try again later."
+                        : "Username already exists",
+                });
+            }
+
+            await OTP.deleteMany({ user: existingUsername._id });
+            await User.findByIdAndDelete(existingUsername._id);
+        }
+
+        // Handle unverified email
+        if (
+            existingEmail &&
+            !existingEmail.verified &&
+            (!existingUsername ||
+                existingEmail._id.toString() !== existingUsername._id.toString())
+        ) {
+            const accountAge =
+                Date.now() - existingEmail.createdAt.getTime();
+
+            if (accountAge < staleThreshold) {
+                const isSameUsername = existingEmail.userName === userName;
+
+                return res.status(400).json({
+                    code: isSameUsername ? "VERIFICATION_PENDING" : "EMAIL_EXISTS",
+                    field: isSameUsername ? undefined : "email",
+                    message: isSameUsername
+                        ? "This email is pending verification. Please verify it or try again later."
+                        : "Email already exists",
+                });
+            }
+
+            await OTP.deleteMany({ user: existingEmail._id });
+            await User.findByIdAndDelete(existingEmail._id);
+        }
+
+        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Create user
         const newUser = await User.create({
             firstName,
             lastName,
             userName,
             email,
             password: hashedPassword,
-            contactNumber
-        })
+            contactNumber,
+        });
 
-
+        // Generate OTP
         const otp = Math.floor(100000 + Math.random() * 900000);
 
         const newOTP = await OTP.create({
             otp,
-            user: newUser._id
+            user: newUser._id,
         });
+
         try {
-            await sendEmail(newUser.email, "Verify your account", `Your OTP is: ${otp}`)
+            await sendEmail(
+                newUser.email,
+                "Verify your account",
+                `Your OTP is: ${otp}`
+            );
         } catch (emailError) {
-            await User.findByIdAndDelete(newUser._id);
             await OTP.findByIdAndDelete(newOTP._id);
-            return res.status(500).json({ message: "Failed to send verification email. Please check your email address and try again." });
+            await User.findByIdAndDelete(newUser._id);
+
+            return res.status(500).json({
+                code: "EMAIL_SEND_FAILED",
+                message:
+                    "Failed to send verification email. Please try again.",
+            });
         }
 
-        res.status(201).json({ message: "Signup successful, OTP sent to email" })
-
-
+        return res.status(201).json({
+            message: "Signup successful. OTP sent to your email.",
+            email: newUser.email,
+        });
     } catch (error) {
-        res.status(500).json({ message: "Something went wrong", error: error.message })
+        return res.status(500).json({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Something went wrong.",
+        });
     }
-}
+};
+
 export const verifyotpController = async (req, res) => {
 
     try {
@@ -100,7 +170,7 @@ export const verifyotpController = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Something went wrong", error: error.message })
     }
-
+    
 }
 export const loginController = async (req, res) => {
     try {

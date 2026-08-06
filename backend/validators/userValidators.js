@@ -10,7 +10,8 @@ export const updateProfileValidator = [
 
     body("lastName")
         .optional()
-        .trim(),
+        .trim()
+        .matches(/^[A-Za-z]+$/).withMessage("Last name should contain only letters"),
 
     body("userName")
         .optional()

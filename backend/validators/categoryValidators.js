@@ -7,6 +7,8 @@ export const createCategoryValidator = [
     body("color")
         .trim()
         .notEmpty().withMessage("Color is required")
+        .bail()
+        .isHexColor().withMessage("Color must be a valid hex code")
 ]
 
 export const getAllCategoriesValidator = [
@@ -46,5 +48,7 @@ export const updateCategoryValidator = [
         .optional()
         .trim()
         .notEmpty().withMessage("Color is required")
+        .bail()
+        .isHexColor().withMessage("Color must be a valid hex code")
 ]
 

@@ -7,6 +7,11 @@ export const signupValidator = [
         .bail()
         .matches(/^[A-Za-z]+$/).withMessage("First name should contain only letters"),
 
+    body("lastName")
+        .trim()
+        .optional()
+        .matches(/^[A-Za-z]+$/).withMessage("Last name should contain only letters"),
+
     body("userName")
         .trim()
         .notEmpty().withMessage("User name is required")

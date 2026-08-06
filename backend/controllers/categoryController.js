@@ -141,45 +141,24 @@ export const updateCategoryController = async (req, res) => {
 }
 
 export const deleteCategoryController = async (req, res) => {
-    const session = await mongoose.startSession();
     try {
-        session.startTransaction();
-
         const userId = req.user.id;
         const categoryId = req.params.id;
 
-        const category = await Category.findOne({ _id: categoryId, userId }).session(session);
+        const category = await Category.findOne({ _id: categoryId, userId });
         if (!category) {
-            await session.abortTransaction();
             return res.status(404).json({ message: "Category not found" });
-        }
-
-        if (category.isDefault) {
-            await session.abortTransaction();
-            return res.status(400).json({ message: "Cannot delete the default category" });
-        }
-
-        let defaultCategory = await Category.findOne({ userId, isDefault: true }).session(session);
-        if (!defaultCategory) {
-            defaultCategory = await Category.create(
-                [{ userId, color: "grey", category: "Uncategorized", isDefault: true }],
-                { session }
-            );
-            defaultCategory = defaultCategory[0]
         }
 
         await Task.updateMany(
             { userId, category: categoryId },
-            { $set: { category: defaultCategory._id } },
-            { session }
+            { $set: { category: null} },
         );
 
-        await Category.findByIdAndDelete(categoryId, { session });
-
-        await session.commitTransaction();
+        await Category.findByIdAndDelete(categoryId);
 
         return res.status(200).json({
-            message: "Category deleted successfully. Associated tasks moved to Uncategorized."
+            message: "Category deleted successfully."
         });
     } catch (error) {
         await session.abortTransaction();
@@ -187,7 +166,5 @@ export const deleteCategoryController = async (req, res) => {
             message: "Something went wrong",
             error: error.message
         })
-    } finally {
-        session.endSession();
     }
 }

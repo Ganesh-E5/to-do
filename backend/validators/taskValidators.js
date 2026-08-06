@@ -5,7 +5,9 @@ export const createTaskValidator = [
     body("title").trim().notEmpty().withMessage("Title is required"),
     body("description").optional().trim(),
     body("category")
-        .optional()
+        .optional({
+            checkFalsy: true
+        })
         .isMongoId().withMessage("Invalid category id")
         .bail()
         .custom(async (value, { req }) => {
@@ -103,7 +105,7 @@ export const updateTaskValidator = [
         .optional()
         .isIn(["low", "medium", "high"]).withMessage("Priority must be low, medium, or high"),
     body("category")
-        .optional()
+        .optional({ checkFalsy: true })
         .isMongoId().withMessage("Invalid category id")
         .bail()
         .custom(async (value, { req }) => {

@@ -113,6 +113,15 @@ function LoginPage() {
                             Don't have an account?{" "}
                             <Link className="text-blue-600 font-medium hover:text-blue-700 hover:underline" to="/signup">Sign Up</Link>
                         </p>
+                        <p className="text-center mt-2 text-sm">
+                            Haven't verified your email?{" "}
+                            <Link
+                                to="/verify-otp"
+                                className="text-blue-600 font-medium hover:text-blue-700 hover:underline"
+                            >
+                                Verify Email
+                            </Link>
+                        </p>
                     </form>
                 </div>
             </div>

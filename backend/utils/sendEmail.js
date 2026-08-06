@@ -15,15 +15,28 @@ const getTransporter = () => {
         });
     }
     return transporter;
-}
+};
+
 const sendEmail = async (to, subject, text) => {
-    const transporter = getTransporter();
-    await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to,
-        subject,
-        text,
-    });
+    try {
+        const transporter = getTransporter();
+        await transporter.verify();
+        console.log("SMTP connection successful");
+        
+
+        const info = await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to,
+            subject,
+            text,
+        });
+
+        console.log("Email sent:", info.messageId);
+    } catch (error) {
+        console.error("Email sending failed:");
+        console.error(error);
+        throw error;
+    }
 };
 
 export default sendEmail;

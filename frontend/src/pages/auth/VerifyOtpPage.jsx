@@ -56,7 +56,7 @@ function VerifyOtpPage() {
         setResendMessage("");
 
         try {
-            const res = await resendOtp(identifier);
+            const res = await resendOtp({identifier});
 
             sessionStorage.setItem("todo-email", identifier);
 

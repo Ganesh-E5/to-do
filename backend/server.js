@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
+import dns from "dns"
 
 import authRoutes from "./routes/authRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
@@ -9,6 +10,8 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 
 import { generalLimiter } from "./middleware/rateLimiters.js";
+
+dns.setDefaultResultOrder("ipv4first")
 
 dotenv.config();
 

@@ -41,7 +41,7 @@ export const getAllCategoriesController = async (req, res) => {
     try {
 
         const userId = req.user.id;
-        const { sortBy = "createdAt", page = 1, limit = 20, order = "desc" } = matchedData(req, { locations: ["query"] })
+        const { sortBy = "createdAt", page = 1, limit = 10, order = "desc" } = matchedData(req, { locations: ["query"] })
 
         const filter = { userId: new mongoose.Types.ObjectId(userId) };
         const skip = (page - 1) * limit;

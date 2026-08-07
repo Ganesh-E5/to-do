@@ -28,7 +28,7 @@ export const createTaskController = async (req, res) => {
 export const getAllTasksController = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { status, priority, category, page = 1, limit = 20, sortBy = "createdAt", order = "desc" } = matchedData(req, { locations:["query"]});
+        const { status, priority, category, page = 1, limit = 10, sortBy = "createdAt", order = "desc" } = matchedData(req, { locations:["query"]});
 
         const filter = { userId: new mongoose.Types.ObjectId(userId) };
         if (status) filter.status = status;

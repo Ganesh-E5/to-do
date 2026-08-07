@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
+import OtpInput from "../../components/otp/OtpInput";
 import { requestPasswordChangeOTP, verifyPasswordChangeOTP } from "../../services/userService";
 import { logout } from "../../services/authService";
 import { Helmet } from "react-helmet-async";
@@ -11,6 +12,7 @@ function ChangePasswordPage() {
     const [stage, setStage] = useState("request"); // "request" | "verify"
     const [requesting, setRequesting] = useState(false);
     const [serverError, setServerError] = useState("");
+    const [otp, setOtp] = useState("");
     const navigate = useNavigate();
 
     const {
@@ -27,6 +29,7 @@ function ChangePasswordPage() {
         setServerError("");
         try {
             await requestPasswordChangeOTP();
+            setOtp(""); // reset in case this is a resend
             setStage("verify");
         } catch (error) {
             setServerError(error.response?.data?.message || "Failed to send OTP. Please try again.");
@@ -38,8 +41,8 @@ function ChangePasswordPage() {
     const onSubmit = async (data) => {
         setServerError("");
         try {
-            await verifyPasswordChangeOTP({ otp: data.otp, newPassword: data.newPassword });
-            logout(); 
+            await verifyPasswordChangeOTP({ otp, newPassword: data.newPassword });
+            logout();
             navigate("/login");
         } catch (error) {
             setServerError(error.response?.data?.message || "Failed to change password. Please try again.");
@@ -77,16 +80,7 @@ function ChangePasswordPage() {
                                 Enter the 6-digit code sent to your email, along with your new password.
                             </p>
 
-                            <Input
-                                type="text"
-                                id="otp"
-                                label="OTP"
-                                error={errors.otp?.message}
-                                {...register("otp", {
-                                    required: "OTP is required",
-                                    pattern: { value: /^[0-9]{6}$/, message: "OTP must be 6 digits" },
-                                })}
-                            />
+                            <OtpInput otp={otp} setOtp={setOtp} />
 
                             <Input
                                 type="password"
@@ -119,7 +113,7 @@ function ChangePasswordPage() {
                             <div className="flex items-center gap-4">
                                 <Button
                                     type="submit"
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || otp.length !== 6}
                                     children={isSubmitting ? "Changing..." : "Change Password"}
                                 />
                                 <button

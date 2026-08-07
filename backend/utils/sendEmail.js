@@ -5,7 +5,7 @@ let transporter;
 const getTransporter = () => {
     if (!transporter) {
         transporter = nodemailer.createTransport({
-            service: "smtp.gmail.com",
+            host: "smtp.gmail.com",
             port: 465,
             secure: true,
             auth: {
@@ -24,17 +24,13 @@ const getTransporter = () => {
 const sendEmail = async (to, subject, text) => {
     try {
         const transporter = getTransporter();
-        await transporter.verify();
         console.log("SMTP connection successful");
-        
-
         const info = await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to,
             subject,
             text,
         });
-
         console.log("Email sent:", info.messageId);
     } catch (error) {
         console.error("Email sending failed:");

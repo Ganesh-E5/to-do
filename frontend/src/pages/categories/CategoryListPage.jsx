@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getCategories } from "../../services/categoryService";
 import CategoryCard from "../../components/categories/CategoryCard";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import Pagination from "../../components/common/Pagination";
 import { Helmet } from "react-helmet-async";
 
 function CategoryListPage() {
     const [categories, setCategories] = useState([]);
     const [pagination, setPagination] = useState(null);
+    const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
@@ -15,9 +18,9 @@ function CategoryListPage() {
             setLoading(true);
             setError("");
             try {
-                const res = await getCategories();
+                const res = await getCategories({ page });
                 setCategories(res.data.categories);
-
+                setPagination(res.data.pagination);
             } catch (err) {
                 setError(err.response?.data?.message || "Failed to load categories.");
             } finally {
@@ -25,10 +28,10 @@ function CategoryListPage() {
             }
         };
         fetchCategories();
-    }, []);
+    }, [page]);
 
     if (loading) {
-        return <p className="text-center text-gray-500 py-10">Loading categories...</p>;
+        return <LoadingSpinner />;
     }
 
     if (error) {
@@ -68,6 +71,12 @@ function CategoryListPage() {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    currentPage={pagination?.currentPage}
+                    totalPages={pagination?.totalPages}
+                    onPageChange={setPage}
+                />
             </div>
         </>
     );

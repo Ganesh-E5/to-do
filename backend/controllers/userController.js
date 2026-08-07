@@ -89,7 +89,7 @@ export const requestPasswordChangeOTPController = async (req, res) => {
             otp
         })
 
-        await sendEmail(user.email, "Password Change OTP",`Your OTP  to change yourpassword is: ${otp}`);
+        await sendEmail(user.email, "Password Change OTP",`Your OTP to change your password is: ${otp}`);
 
         return res.status(200).json({
             message: "OTP sent to your registered email"

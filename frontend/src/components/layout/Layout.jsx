@@ -19,7 +19,7 @@ function Layout() {
             <nav className="bg-gray-900 px-4">
                 <div className="max-w-5xl mx-auto flex items-center justify-between h-16">
                     <div className="flex items-center gap-6">
-                        <span className="text-white text-xl font-bold">To-Do</span>
+                        <span className="text-white text-xl font-bold">Task Flow</span>
                         <div className="flex gap-1">
                             <NavLink to="/tasks" className={navLinkClass}>
                                 Tasks

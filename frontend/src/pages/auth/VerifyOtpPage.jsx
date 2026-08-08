@@ -83,7 +83,7 @@ function VerifyOtpPage() {
                 <div className="bg-white w-full max-w-md mx-4 p-8 rounded-xl shadow-xl">
 
                     <h1 className="text-center text-5xl font-bold">
-                        To-Do
+                        Task Flow
                     </h1>
 
                     <p className="text-center text-3xl font-bold mt-8">

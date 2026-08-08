@@ -41,7 +41,7 @@ function LoginPage() {
             <div className="bg-gray-900 min-h-screen flex items-center justify-center py-4">
                 <div className="bg-white w-full max-w-md mx-4 p-8 rounded-xl shadow-xl">
                     <h1 className="text-center text-5xl font-bold">
-                        To-Do
+                        Task Flow
                     </h1>
 
                     <p className="text-center text-lg text-gray-500 mt-3 mb-8">

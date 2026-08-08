@@ -30,7 +30,8 @@ export const signupValidator = [
         .isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
 
     body("contactNumber")
-        .optional()
+        .trim()
+        .optional({ values: "falsy" })
         .matches(/^[0-9]{10}$/).withMessage("Contact number must be exactly 10 digits"),
 ];
 

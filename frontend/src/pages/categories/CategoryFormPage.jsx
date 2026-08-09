@@ -3,17 +3,16 @@ import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import {createCategory, getCategoryById, updateCategory} from "../../services/categoryService"
+import { createCategory, getCategoryById, updateCategory } from "../../services/categoryService"
 import { Helmet } from "react-helmet-async";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 function CategoryFormPage() {
     const { id } = useParams();
     const isEditMode = Boolean(id);
     const navigate = useNavigate();
-
     const [serverError, setServerError] = useState("");
     const [loading, setLoading] = useState(isEditMode);
-
     const {
         register,
         handleSubmit,
@@ -38,8 +37,9 @@ function CategoryFormPage() {
             } finally {
                 setLoading(false);
             }
-        }
-    }, [id])
+        };
+        fetchCategory();
+    }, [id, reset]);
 
     const onSubmit = async (data) => {
         setServerError("");
@@ -51,8 +51,12 @@ function CategoryFormPage() {
             }
             navigate("/categories");
         } catch (error) {
-            setServerError(error.message?.data?.message || "Failed to Save category")
+            setServerError(error.response?.data?.message || "Failed to save category.");
         }
+    };
+
+    if (loading) {
+        return <LoadingSpinner />;
     }
 
     return (
@@ -63,8 +67,8 @@ function CategoryFormPage() {
                 </title>
             </Helmet>
             <div>
-                <h1  className="text-3xl font-bold mb-8">
-                    { isEditMode ? "Edit Category": "New Category"}
+                <h1 className="text-3xl font-bold mb-8">
+                    {isEditMode ? "Edit Category" : "New Category"}
                 </h1>
                 <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-8 rounded-xl shadow-xl space-y-4">
                     <Input
@@ -82,15 +86,13 @@ function CategoryFormPage() {
                         })}
                         error={errors.category?.message}
                     />
-
                     {serverError && (
                         <p className="text-red-500 text-sm text-center">{serverError}</p>
                     )}
-
                     <Button
                         type="submit"
                         disabled={isSubmitting}
-                          children={
+                        children={
                             isSubmitting
                                 ? isEditMode ? "Saving..." : "Creating..."
                                 : isEditMode ? "Save Changes" : "Create Category"
@@ -99,7 +101,7 @@ function CategoryFormPage() {
                 </form>
             </div>
         </>
-    )
+    );
 }
 
-export default CategoryFormPage
+export default CategoryFormPage;
